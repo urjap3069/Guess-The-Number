@@ -1,71 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guess The Number</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="script.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guess The Number Game</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <h1>Guess The Number</h1>
-    <div class="tabs">
-        <button class="tab-btn" onclick="showTab('game')">Guess The Number</button>
-        <button class="tab-btn" onclick="showTab('todo')">To-do</button>
-        <button class="tab-btn" onclick="showTab('calculator')">Calculator</button>
+
+  <div class="container">
+    <h1>🎯 Guess The Number</h1>
+    <p class="subtitle">I'm thinking of a number between <strong>1 - 100</strong></p>
+
+    <div class="box">
+      <input type="number" id="guess" placeholder="Enter your number..." />
+      <button id="checkBtn">Check</button>
     </div>
 
-    <div id="calculator" classs="tab-content">
-        <h2>Calculator</h2>
-        <input type="text" id="calc-display" readonly />
+    <p id="message">Start guessing...</p>
 
-        <div class="calc-buttons">
-            <button onclcik="press('7')">7</button>
-            <button onclick="press('8')">8</button>
-            <button onclick="press('9')">9</button>
-            <button onclick="press('/')">/</button>
-
-            <button onclick="press('4')">4</button>
-            <button onclick="press('5')">5</button>
-            <button onclick="press('6')">6</button>
-            <button onclick="press('*')">*</button>
-
-            <button onclick="press('1')">1</button>
-            <button onclick="press('2')">2</button>
-            <button onclick="press('3')">3</button>
-            <button onclick="press('-')">-</button>
-
-
-            <button onclick="press('0')">0</button>
-            <button onclick="press('.')">.</button>
-            <button onclick="calculate()">=</button>
-            <button onclick="press('+')">+</button>
-
-            <button onclick="clearCalc()" class="clear">Clear</button>
-        </div>
-    </div>
-    
-    <div id="todo" class="tab-content hide">
-        <h2>To-Do List</h2>
-
-        <input type="text" id="taskInput" placeholder="Add a Task.."/>
-        <button id="addTasskBtn">Add</button>
-        <button id="clearAllBtn" class="clear-btn">Clear All</button>
-        <ul id="taskList"></ul>
+    <div class="stats">
+      <p>Score: <span id="score">10</span></p>
+      <p>High Score: <span id="highScore">0</span></p>
     </div>
 
-    <div id="game" class="tab-content hide">
-        <h2>Guess The Number(1-10)</h2>
+    <button id="resetBtn" class="reset">🔄 Play Again</button>
+  </div>
 
-        <p>Try to guess the number!</p>
-
-        <input type="number" id="guessInput" placeholder="Enter number" />
-        <button onclick="checkGuess()">Guess</button>
-
-        <p id="gameResult"></p>
-    </div>
-
-
-    
+  <script src="script.js"></script>
 </body>
 </html>
