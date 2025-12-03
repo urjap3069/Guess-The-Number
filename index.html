@@ -5,39 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Guess The Number Game</title>
   <link rel="stylesheet" href="style.css" />
+  
 </head>
 <body>
 
-  <div class="container">
-    <h1>🎯 Guess The Number</h1>
+  <div class="box">
+    <h2>🎮 Guess The Number – Levels</h2>
+
+    <!-- LEVEL BUTTONS -->
+    <p>Select Level:</p>
+
+    <button id="easy">Easy (1–10)</button>
+    <button id="medium">Medium (1–50)</button>
+    <button id="hard">Hard (1–100)</button>
+
+    <p id="currentLevel">Level: Not Selected</p>
+
+    <!-- GAME INPUT -->
+    <input type="number" id="userInput" placeholder="Enter guess" disabled>
+
+    <br>
+    <button id="checkBtn" disabled>Check</button>
+    <button id="resetBtn">Reset</button>
     
+        <p id="message">Please select a level to start.</p>
+</div>
 
-    <div class="box">
 
-      <h2>🎮 Guess The Number - Levels</h2>
-
-      <p>Select a level of difficulty:</p>
-
-      <select id="level">
-        <option value="easy">Easy (1-10)</option>
-        <option value="medium">Medium (1-50)</option>
-        <option value="hard">Hard (1-100)</option>
-      </select>
-    </div>
-      <input type="number" id="guess" placeholder="Enter your number..." />
-      <button id="checkBtn">Check</button>
-    </div>
-
-    <p id="message">Start guessing...</p>
-
-    <div class="stats">
-      <p>Score: <span id="score">10</span></p>
-      <p>High Score: <span id="highScore">0</span></p>
-    </div>
-
-    <button id="resetBtn" class="reset">🔄 Play Again</button>
-  </div>
-  
+   
   <script src="script.js"></script>
+  
 </body>
 </html>

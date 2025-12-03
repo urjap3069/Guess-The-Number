@@ -1,75 +1,66 @@
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #6a11cb, #2575fc);
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-}
+ body {
+            font-family: Arial;
+            background: #f5f5f5;
+            text-align: center;
+            padding-top: 40px;
 
-.container {
-  background: rgba(255, 255, 255, 0.2);
-  padding: 30px;
-  width: 350px;
-  border-radius: 15px;
-  text-align: center;
-  backdrop-filter: blur(10px);
-}
+        }
+        .box {
+            width: 370px;
+            background: #fafbfa;
+            padding: 25px;
+            margin: auto;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #ccc;
+            background-color: #e0f7fa;
+        }
+        button {
+            padding: 10px 18px;
+            margin: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 8px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
 
-h1 {
-  margin-bottom: 5px;
-}
+        }
 
-.subtitle {
-  margin-bottom: 20px;
-  font-size: 14px;
-}
+         input {
+            padding: 10px;
+            width: 200px;
+            font-size: 16px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            outline: none;
 
-.box {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
+        }
+        #message {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
 
-#guess {
-  width: 120px;
-  padding: 10px;
-  border: none;
-  border-radius: 8px;
-  outline: none;
-  font-size: 16px;
-}
 
-#checkBtn {
-  padding: 10px 14px;
-  font-size: 16px;
-  border: none;
-  background: yellow;
-  border-radius: 8px;
-  cursor: pointer;
-}
+        }
+        .status {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
 
-#message {
-  margin: 15px 0;
-  font-size: 18px;
-  font-weight: bold;
-}
+        }
+        .subtitle {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #333;
 
-.stats p {
-  margin: 5px 0;
-}
-
-.reset {
-  margin-top: 20px;
-  padding: 12px;
-  width: 100%;
-  background: #ff4d4d;
-  border: none;
-  color: white;
-  font-size: 16px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
+        }
+        #currentLevel {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }

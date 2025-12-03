@@ -1,61 +1,55 @@
-let secretNumber = Math.floor(Math.random() * 100) + 1;
-let score = 10;
-let highScore = localStorage.getItem("highScore") || 0;
+let secretNumber;
+let maxRange;
+let message = document.getElementById("message");
+let inputBox = document.getElementById("userInput");
+let checkBtn = document.getElementById("checkBtn");
+let currentLevel = document.getElementById("currentLevel");
 
-document.getElementById("highScore").textContent = highScore;
+// LEVEL BUTTONS
+document.getElementById("easy").addEventListener("click", () => startGame(10, "Easy"));
+document.getElementById("medium").addEventListener("click", () => startGame(50, "Medium"));
+document.getElementById("hard").addEventListener("click", () => startGame(100, "Hard"));
 
-const guessInput = document.getElementById("guess");
-const message = document.getElementById("message");
-const scoreDisplay = document.getElementById("score");
+// GAME START FUNCTION
+function startGame(range, levelName) {
+    maxRange = range;
+    secretNumber = Math.floor(Math.random() * maxRange) + 1;
 
-// Show message
-function showMsg(msg) {
-  message.textContent = msg;
+    currentLevel.textContent = `Level: ${levelName} (1 - ${maxRange})`;
+    message.textContent = "Game started! Guess the number.";
+
+    inputBox.disabled = false;
+    checkBtn.disabled = false;
+
+    inputBox.value = "";
+    document.body.style.background = "#f5f5f5";
 }
 
-// Check Guess
-document.getElementById("checkBtn").addEventListener("click", function () {
-  const guess = Number(guessInput.value);
+// CHECK BUTTON
+checkBtn.addEventListener("click", function () {
+    let guess = Number(inputBox.value);
 
-  if (!guess || guess < 1 || guess > 100) {
-    showMsg("⛔ Enter a valid number!");
-    return;
-  }
-
-  if (guess === secretNumber) {
-    showMsg("🎉 Correct Number!");
-    document.body.style.background = "green";
-
-    if (score > highScore) {
-      highScore = score;
-      localStorage.setItem("highScore", highScore);
-      document.getElementById("highScore").textContent = highScore;
-    }
-  } 
-  else {
-    score--;
-    scoreDisplay.textContent = score;
-
-    if (score <= 0) {
-      showMsg("💥 Game Over!");
-      document.body.style.background = "red";
+    if (!guess) {
+        message.textContent = "❌ Enter a valid number!";
+    } 
+    else if (guess < secretNumber) {
+        message.textContent = "📉 Too low!";
     } 
     else if (guess > secretNumber) {
-      showMsg("📈 Too High!");
+        message.textContent = "📈 Too high!";
     } 
     else {
-      showMsg("📉 Too Low!");
+        message.textContent = "🎉 Correct! You Win!";
+        document.body.style.background = "#90ee90";
     }
-  }
 });
 
-// Reset Game
+// RESET BUTTON
 document.getElementById("resetBtn").addEventListener("click", function () {
-  score = 10;
-  secretNumber = Math.floor(Math.random() * 100) + 1;
-
-  scoreDisplay.textContent = score;
-  guessInput.value = "";
-  showMsg("Start guessing...");
-  document.body.style.background = "linear-gradient(135deg, #6a11cb, #2575fc)";
+    inputBox.value = "";
+    message.textContent = "Select a level to start.";
+    currentLevel.textContent = "Level: Not Selected";
+    inputBox.disabled = true;
+    checkBtn.disabled = true;
+    document.body.style.background = "#f5f5f5";
 });
