@@ -10,9 +10,20 @@
 
   <div class="container">
     <h1>🎯 Guess The Number</h1>
-    <p class="subtitle">I'm thinking of a number between <strong>1 - 100</strong></p>
+    
 
     <div class="box">
+
+      <h2>🎮 Guess The Number - Levels</h2>
+
+      <p>Select a level of difficulty:</p>
+
+      <select id="level">
+        <option value="easy">Easy (1-10)</option>
+        <option value="medium">Medium (1-50)</option>
+        <option value="hard">Hard (1-100)</option>
+      </select>
+    </div>
       <input type="number" id="guess" placeholder="Enter your number..." />
       <button id="checkBtn">Check</button>
     </div>
@@ -26,7 +37,7 @@
 
     <button id="resetBtn" class="reset">🔄 Play Again</button>
   </div>
-
+  
   <script src="script.js"></script>
 </body>
 </html>
