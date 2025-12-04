@@ -1,120 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Guess The Number Game</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PRO Guess The Number — Ultimate</title>
   <link rel="stylesheet" href="style.css" />
-  
 </head>
 <body>
-
   <div class="app">
 
-    <header classs="app-head">
-      <div class="title">
+    <header class="header">
+      <div class="brand">
         <div class="logo">G</div>
-
-       <div>
-        <h1>Guess The Number</h1>
-        <p class="lead"> Levels,Score,Timer,Sounds ,Confetti & Level Unlocks - built with pure Dom</p>
-       </div>
+        <div>
+          <h1>PRO Guess The Number</h1>
+          <p class="subtitle">Levels • Score • Timer • Sounds • Confetti • Leaderboard</p>
+        </div>
       </div>
-
-       <div class="controls">
-        <div class="meta">Best: <strong id= "globalBest">-</strong></div>
-        <button id="helpBtn" class="btn"> How to play</button>
-        <button id="themeBtn" class="btn toggle">🌙 </button>
-       </div>
+      <div class="header-controls">
+        <button id="themeBtn" class="btn toggle">🌙</button>
+        <button id="helpBtn" class="btn">❔ How to</button>
+      </div>
     </header>
 
-    <aside class="panel left">
-      <div class="card">
-        <h3 style="margin:0">Select Level</h3>
-        <p class="meta">Unlock levels by completing privious level</p>
-        <div class="levels" id="levelsList">
+    <main class="main-grid">
+      <aside class="panel left">
+        <section class="card">
+          <h3>Select Level</h3>
+          <div id="levelsList" class="levels"></div>
+        </section>
 
-        </div>
-      </div>
+        <section class="card settings">
+          <h4>Settings</h4>
+          <label><input type="checkbox" id="useTimer"> Use Timer</label>
+          <label><input type="checkbox" id="useSound" checked> Sound</label>
+          <label><input type="checkbox" id="useConfetti" checked> Confetti on Win</label>
+        </section>
 
-      <div class="card">
-        <h4 style="margin:0">Game Settings</h4>
-        <div style="margin-top: 8px" class="meta">
-          <lable><input type="checkbox" id="userTime" />Use Timer </lable>
-          <lable style="margin-left:8px"> <input type="checkbox" id="useSound" checked>Sound</lable>
-        </div>
-        <p class="meta" style="margin-top:8px">Tip:Timer mode increases challenge & score bonus.</p>
-      </div>
+        <section class="card highs">
+          <h4>High Scores</h4>
+          <div id="highScores"></div>
+          <button id="resetProgress" class="btn small">Reset Progress & Scores</button>
+        </section>
+      </aside>
 
-      <div class="card">
-        <h4 style="margine-left:8px">High Scores</h4>
-        <div id="highScores"class="meta" style="margin-top:8ppx; flex-direction:coloumn; align-items:flex-start;">
-
-        </div>
-      </div>
-    </aside>
-
-    <main class="panel game">
-      <div class="card">
-           <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <div style="font-size:13px; color:var(--muted)">Level</div>
-            <div id="selectedLevel" class="range">Not selected</div>
+      <section class="panel game-area">
+        <div class="card status">
+          <div class="top-row">
+            <div>
+              <div class="label">Level</div>
+              <div id="selectedLevel" class="value">Not Selected</div>
+            </div>
+            <div>
+              <div class="label">Attempts</div>
+              <div id="attempts" class="value">0</div>
+            </div>
           </div>
-          <div style="text-align:right">
-            <div style="font-size:13px; color:var(--muted)">Attempts</div>
-            <div id="attempts" style="font-weight:800">0</div>
-          </div>
-        </div>
 
-        <div style="margin-top:12px;">
-          <div style="font-size:13px; color:var(--muted)">Pick a number between</div>
-          <div style="margin-top:6px; font-size:20px" id="rangeLabel" class="range">—</div>
+          <div class="range-row">
+            <div class="label">Range</div>
+            <div id="rangeLabel" class="value">—</div>
+          </div>
 
           <div class="input-row">
-            <input id="guessInput" type="number" placeholder="Enter guess" disabled />
-            <button id="checkBtn" class="big-btn" disabled>Check</button>
-            <button id="giveUpBtn" class="small">Give Up</button>
+            <input id="guessInput" type="number" placeholder="Enter your guess" disabled />
+            <button id="checkBtn" class="btn primary" disabled>Check</button>
+            <button id="giveUpBtn" class="btn">Give Up</button>
+          </div>
 
-             <div class="stats">
+          <div class="stats">
             <div class="stat">
-              <div style="font-size:12px;color:var(--muted)">Score</div>
-              <div id="score" style="font-weight:800">—</div>
+              <div class="label">Score</div>
+              <div id="score" class="value">—</div>
             </div>
             <div class="stat">
-              <div style="font-size:12px;color:var(--muted)">High Score</div>
-              <div id="highScore" style="font-weight:800">—</div>
+              <div class="label">High</div>
+              <div id="highScore" class="value">—</div>
             </div>
             <div class="stat">
-              <div style="font-size:12px;color:var(--muted)">Time Left</div>
-              <div id="timeLeft" style="font-weight:800">—</div>
+              <div class="label">Time</div>
+              <div id="timeLeft" class="value">—</div>
             </div>
           </div>
 
-          <div class="message" id="message">Select a level to begin</div>
+          <div id="message" class="message">Select a level to start</div>
 
-          <div style="margin-top:12px; display:flex; gap:8px;">
+          <div class="controls-row">
             <button id="newGame" class="btn">New Game</button>
-            <button id="resetProgress" class="btn">Reset Progress</button>
-            <button id="shareBtn" class="btn">Share Score</button>
-
+            <button id="shareBtn" class="btn">Share</button>
+            <button id="leaderBtn" class="btn">Leaderboard</button>
           </div>
         </div>
-      </div>
 
-         <div class="card" id="logCard" style="display:none">
-        <h4>Recent Activity</h4>
-        <div id="log" style="font-size:13px;color:var(--muted)"></div>
-      </div>
-
+        <div id="logCard" class="card log-card hide">
+          <h4>Recent Activity</h4>
+          <div id="log"></div>
+        </div>
+      </section>
     </main>
 
-      <div class="confetti" id="confettiCanvas"></div>
+    <div id="confetti" class="confetti"></div>
 
-    <footer class="note">Made with ❤️ · DOM, Events, localStorage — Perfect for resume</footer>
+    <!-- Leaderboard Modal -->
+    <div id="leaderModal" class="modal hide">
+      <div class="modal-content">
+        <h3>Leaderboard — Top Scores</h3>
+        <div id="leaderboardList" class="leaderboard-list"></div>
+        <button id="closeLeader" class="btn">Close</button>
+      </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="modal hide">
+      <div class="modal-content">
+        <h3>How to Play</h3>
+        <p>Select a level → guess the secret number within the range. Score decreases with wrong guesses. Use timer for bonus challenge. Win to unlock next level. Good luck!</p>
+        <button id="closeHelp" class="btn">Close</button>
+      </div>
+    </div>
+
   </div>
 
   <script src="script.js"></script>
-  
 </body>
 </html>
