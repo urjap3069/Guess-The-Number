@@ -1,32 +1,25 @@
-/* PRO Guess The Number — Full Power
-   Features:
-   - Levels (easy/medium/hard/pro)
-   - Score, Attempts
-   - Timer (optional)
-   - Sound (WebAudio)
-   - Confetti
-   - Dark mode toggle
-   - Leaderboard (localStorage top scores)
-   - Level unlock system (persisted)
-*/
+// Final clean PRO Guess The Number script
+// Save as script.js (index.html and style.css must be in same folder)
 
-// CONFIG
+// ---------- Config & keys ----------
 const LEVELS = [
   {id:'easy', label:'Easy', range:10, baseScore:20, unlocked:true},
   {id:'medium', label:'Medium', range:50, baseScore:40, unlocked:false},
   {id:'hard', label:'Hard', range:100, baseScore:80, unlocked:false},
   {id:'pro', label:'Pro', range:500, baseScore:300, unlocked:false}
 ];
-const LS_UNLOCK = 'gtn_unlocked_v2';
-const LS_HIGH = 'gtn_high_v2';
-const LS_LEADER = 'gtn_leader_v2';
+const LS_UNLOCK = 'gtn_unlock_final';
+const LS_HIGH = 'gtn_high_final';
+const LS_LEAD = 'gtn_lead_final';
+const LS_THEME = 'gtn_theme_final';
 
-// DOM refs
+// ---------- DOM refs ----------
 const levelsList = document.getElementById('levelsList');
 const selectedLevelEl = document.getElementById('selectedLevel');
 const rangeLabel = document.getElementById('rangeLabel');
 const guessInput = document.getElementById('guessInput');
 const checkBtn = document.getElementById('checkBtn');
+const giveUpBtn = document.getElementById('giveUpBtn');
 const scoreEl = document.getElementById('score');
 const highScoreEl = document.getElementById('highScore');
 const timeLeftEl = document.getElementById('timeLeft');
@@ -39,8 +32,8 @@ const themeBtn = document.getElementById('themeBtn');
 const confettiContainer = document.getElementById('confetti');
 const highScoresBox = document.getElementById('highScores');
 const leaderModal = document.getElementById('leaderModal');
-const leaderBtn = document.getElementById('leaderBtn');
 const leaderboardList = document.getElementById('leaderboardList');
+const leaderBtn = document.getElementById('leaderBtn') || document.getElementById('openLeaderQuick');
 const helpBtn = document.getElementById('helpBtn');
 const helpModal = document.getElementById('helpModal');
 const closeHelp = document.getElementById('closeHelp');
@@ -50,76 +43,91 @@ const resetProgressBtn = document.getElementById('resetProgress');
 const shareBtn = document.getElementById('shareBtn');
 const logEl = document.getElementById('log');
 const logCard = document.getElementById('logCard');
+const globalBestEl = document.getElementById('globalBest');
+const leaderboardPreview = document.getElementById('leaderboardPreview');
 
-// state
-let unlocked = JSON.parse(localStorage.getItem(LS_UNLOCK)) || LEVELS.reduce((a,v)=>{a[v.id]=v.unlocked;return a},{});
+// ---------- State ----------
+let unlocked = JSON.parse(localStorage.getItem(LS_UNLOCK)) || {};
 let highs = JSON.parse(localStorage.getItem(LS_HIGH)) || {};
-let leaders = JSON.parse(localStorage.getItem(LS_LEADER)) || []; // {score, level, attempts, date}
+let leaders = JSON.parse(localStorage.getItem(LS_LEAD)) || [];
 let current = null;
 let timerInterval = null;
 
-// init
-function init(){
-  // ensure default unlocked state
-  for(const L of LEVELS) if(unlocked[L.id] === undefined) unlocked[L.id] = L.unlocked;
-  renderLevels();
-  renderHighScores();
-  renderLeaders();
-  updateGlobalBest();
+// initialize default unlocks
+for (let i=0;i<LEVELS.length;i++){
+  if (unlocked[LEVELS[i].id] === undefined) unlocked[LEVELS[i].id] = LEVELS[i].unlocked;
 }
-init();
 
-// render levels
+// load theme
+(function loadTheme(){
+  const t = localStorage.getItem(LS_THEME);
+  if (t === 'light') { document.body.classList.add('light-mode'); themeBtn.textContent='☀️'; }
+  else { document.body.classList.remove('light-mode'); themeBtn.textContent='🌙'; }
+})();
+
+// init UI
+renderLevels();
+renderHighScores();
+renderLeaders();
+renderLeaderPreview();
+updateGlobalBest();
+
+// ---------- Functions ----------
 function renderLevels(){
   levelsList.innerHTML = '';
   LEVELS.forEach(L=>{
-    const div = document.createElement('div');
-    div.className = 'level-btn ' + (unlocked[L.id] ? '' : 'locked');
-    div.innerHTML = `<div><strong>${L.label}</strong><div style="font-size:13px;color:var(--muted)">1 - ${L.range}</div></div>
-      <div style="text-align:right"><div style="font-weight:800">${L.baseScore} pts</div><div style="font-size:12px;color:var(--muted)">${unlocked[L.id] ? 'Unlocked':'Locked'}</div></div>`;
-    if(unlocked[L.id]){
-      div.addEventListener('click', ()=>selectLevel(L.id));
-    }
-    levelsList.appendChild(div);
+    const node = document.createElement('div');
+    node.className = 'level-btn ' + (unlocked[L.id] ? '' : 'locked');
+    node.innerHTML = `<div><strong>${L.label}</strong><div style="font-size:13px;color:var(--muted-dark)">1 - ${L.range}</div></div>
+      <div style="text-align:right"><div style="font-weight:800">${L.baseScore} pts</div><div style="font-size:12px;color:var(--muted-dark)">${unlocked[L.id]?'Unlocked':'Locked'}</div></div>`;
+    if (unlocked[L.id]) node.addEventListener('click', ()=>selectLevel(L.id));
+    levelsList.appendChild(node);
   });
 }
 
-// render highs
 function renderHighScores(){
   highScoresBox.innerHTML = '';
   LEVELS.forEach(L=>{
-    const val = highs[L.id] || '—';
-    const p = document.createElement('div');
-    p.style.display='flex'; p.style.justifyContent='space-between'; p.style.marginBottom='6px';
-    p.innerHTML = `<div style="color:var(--muted)">${L.label}</div><div style="font-weight:700">${val}</div>`;
-    highScoresBox.appendChild(p);
+    const v = highs[L.id] || '—';
+    const row = document.createElement('div');
+    row.style.display='flex'; row.style.justifyContent='space-between'; row.style.marginBottom='6px';
+    row.innerHTML = `<div style="color:var(--muted-dark)">${L.label}</div><div style="font-weight:700">${v}</div>`;
+    highScoresBox.appendChild(row);
   });
   highScoreEl.textContent = '—';
 }
 
-// render leaders
 function renderLeaders(){
   leaderboardList && (leaderboardList.innerHTML = '');
-  if(!leaders.length){
-    leaderboardList && (leaderboardList.innerHTML = '<div style="color:var(--muted)">No scores yet.</div>');
+  if (!leaders.length) {
+    leaderboardList && (leaderboardList.innerHTML = '<div style="color:var(--muted-dark)">No scores yet.</div>');
     return;
   }
-  const list = leaders.slice(0,10);
-  list.forEach((it, idx)=>{
-    const div = document.createElement('div'); div.className='leader-item';
-    div.innerHTML = `<div>${idx+1}. ${it.level.toUpperCase()} — ${it.score} pts</div><div style="text-align:right"><div style="font-size:12px;color:var(--muted)">${it.attempts} tries</div><div style="font-size:11px;color:var(--muted)">${it.date}</div></div>`;
-    leaderboardList.appendChild(div);
+  leaders.slice(0,10).forEach((it, idx)=>{
+    const li = document.createElement('div'); li.className='leader-item';
+    li.innerHTML = `<div>${idx+1}. ${it.level.toUpperCase()} — ${it.score} pts</div><div style="text-align:right"><div style="font-size:12px;color:var(--muted-dark)">${it.attempts} tries</div><div style="font-size:11px;color:var(--muted-dark)">${it.date}</div></div>`;
+    leaderboardList.appendChild(li);
   });
 }
 
-// update global best in header
-function updateGlobalBest(){
-  let best = 0, bestLevel = '';
-  for(const k in highs){ if(highs[k] > best){ best = highs[k]; bestLevel = k; } }
-  document.getElementById('globalBest') && (document.getElementById('globalBest').textContent = best ? `${best} (${bestLevel})` : '—');
+function renderLeaderPreview(){
+  if(!leaderboardPreview) return;
+  leaderboardPreview.innerHTML = '';
+  leaders.slice(0,3).forEach((it, idx)=>{
+    const el = document.createElement('div');
+    el.textContent = `${idx+1}. ${it.level.toUpperCase()} — ${it.score} pts (${it.attempts} tries)`;
+    leaderboardPreview.appendChild(el);
+  });
 }
 
-// select level
+function updateGlobalBest(){
+  let best = 0, lvl='';
+  for (const k in highs) {
+    if (highs[k] > best) { best = highs[k]; lvl = k; }
+  }
+  globalBestEl && (globalBestEl.textContent = best ? `${best} (${lvl})` : 'Best: —');
+}
+
 function selectLevel(id){
   const L = LEVELS.find(x=>x.id===id);
   if(!L) return;
@@ -140,173 +148,185 @@ function selectLevel(id){
   attemptsEl.textContent = 0;
   highScoreEl.textContent = highs[L.id] || '—';
   timeLeftEl.textContent = current.timeLeft !== null ? current.timeLeft + 's' : '—';
-  messageEl.textContent = 'Game started! Good luck 🎯';
-  log(`Started ${L.label} level`);
-  if(current.timeLeft !== null) startTimer();
+  messageEl.textContent = 'Game started — Good luck!';
+  log(`Started ${L.label}`);
+  if (current.timeLeft !== null) startTimer();
 }
 
-// Start timer
+// timer
 function startTimer(){
   clearInterval(timerInterval);
+  if(!current) return;
   timeLeftEl.textContent = current.timeLeft + 's';
   timerInterval = setInterval(()=>{
-    if(!current || !current.inProgress){ clearInterval(timerInterval); return; }
+    if(!current || !current.inProgress) { clearInterval(timerInterval); return; }
     current.timeLeft--;
     timeLeftEl.textContent = current.timeLeft + 's';
-    if(current.timeLeft <= 0){ clearInterval(timerInterval); messageEl.textContent = '⏱ Time up! You lost.'; playSound('lose'); endGame(false); }
+    if(current.timeLeft <= 0){
+      clearInterval(timerInterval);
+      messageEl.textContent = '⏱ Time up! You lost.';
+      playSound('lose');
+      endGame(false);
+    }
   },1000);
 }
 
-// New game restart same level
+// new game (restart)
 newGameBtn.addEventListener('click', ()=>{
-  if(!current) return messageEl.textContent='Select a level first';
+  if(!current) return messageEl.textContent = 'Select level first';
   selectLevel(current.levelId);
 });
 
-// Reset progress
+// reset progress
 resetProgressBtn.addEventListener('click', ()=>{
-  if(!confirm('Reset all progress & scores?')) return;
+  if(!confirm('Reset progress and scores?')) return;
   unlocked = {}; LEVELS.forEach((L,i)=> unlocked[L.id] = (i===0));
   highs = {}; leaders = [];
   localStorage.setItem(LS_UNLOCK, JSON.stringify(unlocked));
   localStorage.setItem(LS_HIGH, JSON.stringify(highs));
-  localStorage.setItem(LS_LEADER, JSON.stringify(leaders));
-  renderLevels(); renderHighScores(); renderLeaders(); updateGlobalBest();
-  messageEl.textContent = 'Progress reset.';
-  log('Progress reset.');
+  localStorage.setItem(LS_LEAD, JSON.stringify(leaders));
+  renderLevels(); renderHighScores(); renderLeaders(); renderLeaderPreview(); updateGlobalBest();
+  messageEl.textContent = 'Progress reset';
+  log('Progress reset');
 });
 
-// Give Up
-document.getElementById('giveUpBtn').addEventListener('click', ()=>{
-  if(!current) return messageEl.textContent='Select a level first.';
+// give up
+giveUpBtn.addEventListener('click', ()=>{
+  if(!current) return messageEl.textContent = 'Select level first';
   messageEl.textContent = `The number was ${current.secret}.`;
   endGame(false);
 });
 
-// Check guess
-checkBtn.addEventListener('click', ()=>{
-  if(!current) return messageEl.textContent='Select a level first.';
+// check guess
+checkBtn.addEventListener('click', ()=> handleGuess());
+guessInput.addEventListener('keydown', (e)=> { if(e.key === 'Enter') handleGuess(); });
+
+function handleGuess(){
+  if(!current) return messageEl.textContent = 'Select level first';
   const val = Number(guessInput.value);
   if(!val || val < 1 || val > current.range){ messageEl.textContent = `Enter number 1 - ${current.range}`; playSound('error'); return; }
   current.attempts++; attemptsEl.textContent = current.attempts;
   if(val === current.secret){
     messageEl.textContent = '🎉 Correct! You win!';
-    playSound('win'); if(useConfetti.checked) confettiBurst();
+    playSound('win');
+    if(useConfetti.checked) confettiBurst();
     document.body.style.background = 'linear-gradient(135deg,#0f5132,#64d19a)';
     handleWin();
   } else {
     current.score = Math.max(0, current.score - 1);
     scoreEl.textContent = current.score;
-    if(val > current.secret){ messageEl.textContent = '📈 Too high!'; playSound('wrong'); } else { messageEl.textContent = '📉 Too low!'; playSound('wrong'); }
+    if(val > current.secret){ messageEl.textContent = '📈 Too high!'; playSound('wrong'); }
+    else { messageEl.textContent = '📉 Too low!'; playSound('wrong'); }
     if(current.timeLeft !== null){ current.timeLeft = Math.max(0, current.timeLeft - 2); timeLeftEl.textContent = current.timeLeft + 's'; }
     if(current.score <= 0){ messageEl.textContent = '💥 Score dropped to 0 — You lost.'; endGame(false); }
     shake(messageEl);
   }
-});
+}
 
 // handle win
 function handleWin(){
   endGame(true);
   const lvl = current.levelId, s = current.score, a = current.attempts;
-  if(!highs[lvl] || s > highs[lvl]){ highs[lvl]=s; localStorage.setItem(LS_HIGH, JSON.stringify(highs)); renderHighScores(); }
-  // update global leader list (push and sort desc)
+  if(!highs[lvl] || s > highs[lvl]){ highs[lvl] = s; localStorage.setItem(LS_HIGH, JSON.stringify(highs)); renderHighScores(); }
   leaders.unshift({score:s, level:lvl, attempts:a, date:new Date().toLocaleString()});
-  leaders = leaders.sort((a,b)=>b.score - a.score).slice(0,50);
-  localStorage.setItem(LS_LEADER, JSON.stringify(leaders)); renderLeaders();
-  updateGlobalBest();
+  leaders = leaders.sort((x,y)=>y.score-x.score).slice(0,100);
+  localStorage.setItem(LS_LEAD, JSON.stringify(leaders));
+  renderLeaders(); renderLeaderPreview(); updateGlobalBest();
   unlockNextLevel(lvl);
   log(`Won ${lvl} — ${s} pts — ${a} attempts`);
-  // add leader modal auto-open when top score
-  if(leaders.length && leaders[0].score === s) { openLeader(); }
+  if(leaders.length && leaders[0].score === s) openLeader();
 }
 
 // end game
 function endGame(won){
-  current.inProgress=false;
+  current.inProgress = false;
   clearInterval(timerInterval);
   guessInput.disabled = true; checkBtn.disabled = true;
-  if(!won){ document.body.style.background = ''; }
+  if(!won) document.body.style.background = '';
 }
 
 // unlock next
 function unlockNextLevel(levelId){
   const idx = LEVELS.findIndex(l=>l.id===levelId);
   if(idx < 0 || idx === LEVELS.length-1) return;
-  const nextId = LEVELS[idx+1].id;
-  if(!unlocked[nextId]){ unlocked[nextId]=true; localStorage.setItem(LS_UNLOCK, JSON.stringify(unlocked)); renderLevels(); log(`Unlocked ${LEVELS[idx+1].label}`); messageEl.textContent = `${LEVELS[idx+1].label} unlocked!`; }
+  const next = LEVELS[idx+1];
+  if(!unlocked[next.id]){ unlocked[next.id] = true; localStorage.setItem(LS_UNLOCK, JSON.stringify(unlocked)); renderLevels(); messageEl.textContent = `${next.label} unlocked!`; log(`Unlocked ${next.label}`); }
 }
 
-// sound via WebAudio
+// simple WebAudio sounds
 function playSound(type){
   if(!useSound.checked) return;
   try{
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const C = window.AudioContext || window.webkitAudioContext;
+    const ctx = new C();
     const o = ctx.createOscillator(), g = ctx.createGain();
-    o.connect(g); g.connect(ctx.destination); g.gain.value = 0.05;
-    if(type==='win'){ o.type='sine'; o.frequency.value = 880; o.start(); setTimeout(()=>{ o.frequency.value = 440 },120); setTimeout(()=>{ o.stop(); ctx.close() },500); }
-    else if(type==='wrong'){ o.type='triangle'; o.frequency.value=220; o.start(); setTimeout(()=>{ o.stop(); ctx.close() },180); }
-    else if(type==='error'){ o.type='sawtooth'; o.frequency.value=120; o.start(); setTimeout(()=>{ o.stop(); ctx.close() },200); }
-    else if(type==='lose'){ o.type='sine'; o.frequency.value=150; o.start(); setTimeout(()=>{ o.stop(); ctx.close() },400); }
-  }catch(e){ /* ignore audio errors */ }
+    o.connect(g); g.connect(ctx.destination);
+    g.gain.value = 0.06;
+    if(type === 'win'){ o.frequency.value = 880; o.type='sine'; o.start(); setTimeout(()=>{ o.frequency.value=440 },120); setTimeout(()=>{ o.stop(); ctx.close() },520); }
+    else if(type === 'wrong'){ o.frequency.value = 220; o.type='triangle'; o.start(); setTimeout(()=>{ o.stop(); ctx.close() },160); }
+    else if(type === 'error'){ o.frequency.value = 120; o.type='sawtooth'; o.start(); setTimeout(()=>{ o.stop(); ctx.close() },200); }
+    else if(type === 'lose'){ o.frequency.value = 160; o.type='sine'; o.start(); setTimeout(()=>{ o.stop(); ctx.close() },400); }
+  } catch(e){}
 }
 
-// confetti simple burst
+// confetti
 function confettiBurst(){
-  confettiContainer.innerHTML = '';
-  confettiContainer.style.display = 'block';
+  confettiContainer.innerHTML = ''; confettiContainer.style.display='block';
   const count = 60;
   for(let i=0;i<count;i++){
     const el = document.createElement('div');
-    el.className = 'c';
     el.style.position='fixed';
     el.style.left = Math.random()*window.innerWidth + 'px';
     el.style.top = '-20px';
     el.style.width = (6+Math.random()*10)+'px';
     el.style.height = (8+Math.random()*10)+'px';
     el.style.background = ['#ff7b7b','#ffd36b','#7ef29a','#7ad3ff','#e39bff'][Math.floor(Math.random()*5)];
-    el.style.opacity = 0.9;
-    el.style.borderRadius = '2px';
+    el.style.opacity = 0.9; el.style.borderRadius='2px';
     confettiContainer.appendChild(el);
-    const fall = el.animate([{transform:`translateY(0) rotate(0deg)`},{transform:`translateY(${window.innerHeight + 200}px) rotate(${Math.random()*720}deg)`}], { duration:2000+Math.random()*2000, easing:'cubic-bezier(.2,.7,.2,1)'});
-    setTimeout(()=>el.remove(), 2600);
+    el.animate([{transform:'translateY(0) rotate(0deg)'},{transform:`translateY(${window.innerHeight + 200}px) rotate(${Math.random()*720}deg)`}], {duration:2000+Math.random()*2000, easing:'cubic-bezier(.2,.7,.2,1)'});
+    setTimeout(()=>el.remove(),2600);
   }
-  setTimeout(()=>confettiContainer.style.display='none', 3000);
+  setTimeout(()=>confettiContainer.style.display='none',3000);
 }
 
-// UI helpers
+// helpers
 function shake(el){ el.animate([{transform:'translateX(0)'},{transform:'translateX(-8px)'},{transform:'translateX(8px)'},{transform:'translateX(0)'}],{duration:300}); }
 function log(text){ logCard.classList.remove('hide'); logEl.innerHTML = new Date().toLocaleTimeString() + ' — ' + text + '<br>' + logEl.innerHTML; }
 
-// Share button
+// share
 shareBtn.addEventListener('click', ()=>{
   if(!current) return alert('No active game');
   const txt = `I scored ${current.score} on ${current.levelId}!`;
   if(navigator.share) navigator.share({title:'My Score', text:txt}).catch(()=>alert(txt));
-  else prompt('Copy share text', txt);
+  else prompt('Copy to share', txt);
 });
 
-// Leaderboard modal handlers
-leaderBtn.addEventListener('click', openLeader);
+// leader modal open/close
+leaderBtn && leaderBtn.addEventListener('click', openLeader);
 function openLeader(){ leaderModal.classList.remove('hide'); renderLeaders(); }
-closeLeader.addEventListener('click', ()=>leaderModal.classList.add('hide'));
-
-// help modal
-helpBtn.addEventListener('click', ()=>helpModal.classList.remove('hide'));
-closeHelp.addEventListener('click', ()=>helpModal.classList.add('hide'));
-
-// theme toggle
-themeBtn.addEventListener('click', ()=>{
-  document.body.classList.toggle('dark-mode');
-  themeBtn.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+closeLeader && closeLeader.addEventListener('click', ()=>leaderModal.classList.add('hide'));
+document.getElementById('openLeaderQuick') && document.getElementById('openLeaderQuick').addEventListener('click', openLeader);
+document.getElementById('clearLeaders') && document.getElementById('clearLeaders').addEventListener('click', ()=>{
+  if(!confirm('Clear leaderboard?')) return;
+  leaders = []; localStorage.setItem(LS_LEAD, JSON.stringify(leaders)); renderLeaders(); renderLeaderPreview();
 });
 
-// persist load
-(function loadPersistent(){
-  const u = JSON.parse(localStorage.getItem(LS_UNLOCK));
-  if(u) { unlocked = u; renderLevels(); }
-  const h = JSON.parse(localStorage.getItem(LS_HIGH));
-  if(h) { highs = h; renderHighScores(); updateGlobalBest(); }
-  const l = JSON.parse(localStorage.getItem(LS_LEADER));
-  if(l) { leaders = l; renderLeaders(); }
-})();
+// help modal open/close (NO auto-open)
+helpBtn && helpBtn.addEventListener('click', ()=> helpModal.classList.remove('hide'));
+closeHelp && closeHelp.addEventListener('click', ()=> helpModal.classList.add('hide'));
 
+// theme toggle persist
+themeBtn && themeBtn.addEventListener('click', ()=>{
+  if(document.body.classList.contains('light-mode')){ document.body.classList.remove('light-mode'); themeBtn.textContent='🌙'; localStorage.setItem(LS_THEME,'dark'); }
+  else { document.body.classList.add('light-mode'); themeBtn.textContent='☀️'; localStorage.setItem(LS_THEME,'light'); }
+});
+
+// persist load unlocks/highs/leaders
+(function loadPersist(){
+  const u = JSON.parse(localStorage.getItem(LS_UNLOCK));
+  if(u){ unlocked = u; renderLevels(); }
+  const h = JSON.parse(localStorage.getItem(LS_HIGH));
+  if(h){ highs = h; renderHighScores(); updateGlobalBest(); }
+  const l = JSON.parse(localStorage.getItem(LS_LEAD));
+  if(l){ leaders = l; renderLeaders(); renderLeaderPreview(); }
+})();

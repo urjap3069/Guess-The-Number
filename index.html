@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PRO Guess The Number — Ultimate</title>
+  <title>PRO Guess The Number — Dashboard</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="app">
+  <div class="container">
 
     <header class="header">
       <div class="brand">
@@ -17,78 +17,82 @@
           <p class="subtitle">Levels • Score • Timer • Sounds • Confetti • Leaderboard</p>
         </div>
       </div>
-      <div class="header-controls">
-        <button id="themeBtn" class="btn toggle">🌙</button>
-        <button id="helpBtn" class="btn">❔ How to</button>
+
+      <div class="header-actions">
+        <div id="globalBest" class="best">Best: —</div>
+        <button id="helpBtn" class="btn">How to</button>
+        <button id="themeBtn" class="btn toggle" title="Toggle theme">🌙</button>
       </div>
     </header>
 
-    <main class="main-grid">
+    <main class="dashboard">
+      <!-- LEFT: Levels & Settings -->
       <aside class="panel left">
         <section class="card">
           <h3>Select Level</h3>
           <div id="levelsList" class="levels"></div>
         </section>
 
-        <section class="card settings">
-          <h4>Settings</h4>
+        <section class="card">
+          <h3>Settings</h3>
           <label><input type="checkbox" id="useTimer"> Use Timer</label>
           <label><input type="checkbox" id="useSound" checked> Sound</label>
           <label><input type="checkbox" id="useConfetti" checked> Confetti on Win</label>
         </section>
 
-        <section class="card highs">
-          <h4>High Scores</h4>
-          <div id="highScores"></div>
+        <section class="card">
+          <h3>High Scores</h3>
+          <div id="highScores" class="highscores"></div>
           <button id="resetProgress" class="btn small">Reset Progress & Scores</button>
         </section>
       </aside>
 
-      <section class="panel game-area">
-        <div class="card status">
-          <div class="top-row">
+      <!-- CENTER: Game -->
+      <section class="panel center">
+        <div class="card game-card">
+          <div class="game-top">
             <div>
-              <div class="label">Level</div>
-              <div id="selectedLevel" class="value">Not Selected</div>
+              <div class="small">Level</div>
+              <div id="selectedLevel" class="big">Not Selected</div>
             </div>
             <div>
-              <div class="label">Attempts</div>
-              <div id="attempts" class="value">0</div>
+              <div class="small">Attempts</div>
+              <div id="attempts" class="big">0</div>
             </div>
           </div>
 
-          <div class="range-row">
-            <div class="label">Range</div>
-            <div id="rangeLabel" class="value">—</div>
+          <div class="range">
+            <div class="small">Range</div>
+            <div id="rangeLabel" class="big">—</div>
           </div>
 
           <div class="input-row">
-            <input id="guessInput" type="number" placeholder="Enter your guess" disabled />
+            <input id="guessInput" type="number" placeholder="Enter guess" disabled />
             <button id="checkBtn" class="btn primary" disabled>Check</button>
             <button id="giveUpBtn" class="btn">Give Up</button>
           </div>
 
           <div class="stats">
             <div class="stat">
-              <div class="label">Score</div>
-              <div id="score" class="value">—</div>
+              <div class="small">Score</div>
+              <div id="score" class="big">—</div>
             </div>
             <div class="stat">
-              <div class="label">High</div>
-              <div id="highScore" class="value">—</div>
+              <div class="small">High</div>
+              <div id="highScore" class="big">—</div>
             </div>
             <div class="stat">
-              <div class="label">Time</div>
-              <div id="timeLeft" class="value">—</div>
+              <div class="small">Time</div>
+              <div id="timeLeft" class="big">—</div>
             </div>
           </div>
 
           <div id="message" class="message">Select a level to start</div>
 
-          <div class="controls-row">
+          <div class="controls">
             <button id="newGame" class="btn">New Game</button>
-            <button id="shareBtn" class="btn">Share</button>
             <button id="leaderBtn" class="btn">Leaderboard</button>
+            <button id="shareBtn" class="btn">Share</button>
           </div>
         </div>
 
@@ -97,25 +101,48 @@
           <div id="log"></div>
         </div>
       </section>
+
+      <!-- RIGHT: Leaderboard summary -->
+      <aside class="panel right">
+        <section class="card">
+          <h3>Leaderboard (Top)</h3>
+          <div id="leaderboardPreview" class="leader-preview"></div>
+          <button id="openLeaderQuick" class="btn small">Open Full Leaderboard</button>
+        </section>
+
+        <section class="card">
+          <h3>Tips</h3>
+          <ul class="tips">
+            <li>Start Easy → unlock Medium</li>
+            <li>Turn on Timer for bonus</li>
+            <li>Use Sound & Confetti for feedback</li>
+          </ul>
+        </section>
+      </aside>
     </main>
 
     <div id="confetti" class="confetti"></div>
 
     <!-- Leaderboard Modal -->
     <div id="leaderModal" class="modal hide">
-      <div class="modal-content">
+      <div class="modal-body">
         <h3>Leaderboard — Top Scores</h3>
         <div id="leaderboardList" class="leaderboard-list"></div>
-        <button id="closeLeader" class="btn">Close</button>
+        <div class="modal-actions">
+          <button id="closeLeader" class="btn">Close</button>
+          <button id="clearLeaders" class="btn small">Clear Leaders</button>
+        </div>
       </div>
     </div>
 
-    <!-- Help Modal -->
+    <!-- Help Modal (opens only on click) -->
     <div id="helpModal" class="modal hide">
-      <div class="modal-content">
+      <div class="modal-body">
         <h3>How to Play</h3>
-        <p>Select a level → guess the secret number within the range. Score decreases with wrong guesses. Use timer for bonus challenge. Win to unlock next level. Good luck!</p>
-        <button id="closeHelp" class="btn">Close</button>
+        <p>Select level → guess the secret number within the range. Score decreases with wrong guesses. Timer optional. Win to unlock next level. Good luck!</p>
+        <div class="modal-actions">
+          <button id="closeHelp" class="btn">Close</button>
+        </div>
       </div>
     </div>
 
